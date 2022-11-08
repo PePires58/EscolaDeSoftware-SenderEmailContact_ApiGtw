@@ -75,7 +75,6 @@ Resources:
               ":",
               !Ref SendEmailAPIGateway,
               "/",
-              !Ref Environment,
               !Sub "/POST/SendEmails",
             ],
           ]
