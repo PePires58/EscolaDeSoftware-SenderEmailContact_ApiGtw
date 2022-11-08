@@ -1,0 +1,83 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: Escola de software - API Gateway - Send Email
+Resources:
+  SendEmailAPIGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: !Sub "Api Gateway SendEmail"
+      Description: !Sub "Escola de software - API Gateway - Send Email"
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+      FailOnWarnings: False
+      Mode: overwrite
+
+  SendEmailAPIGatewaySendEmailResource:
+    Type: "AWS::ApiGateway::Resource"
+    Properties:
+      RestApiId: !Ref SendEmailAPIGateway
+      ParentId: !GetAtt
+        - SendEmailAPIGateway
+        - RootResourceId
+      PathPart: "SendEmails"
+
+  SendEmailAPIGatewaySendEmailPost:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      ApiKeyRequired: False
+      HttpMethod: POST
+      Integration:
+        IntegrationHttpMethod: POST
+        IntegrationResponses:
+          - StatusCode: 200
+          - StatusCode: 400
+          - StatusCode: 500
+        TimeoutInMillis: 7000
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:SendEmailContactFn/invocations"
+      MethodResponses:
+        - StatusCode: 201
+        - StatusCode: 400
+        - StatusCode: 500
+      OperationName: POST /SendEmails
+      ResourceId: !Ref SendEmailAPIGatewaySendEmailResource
+      RestApiId: !Ref SendEmailAPIGateway
+
+  SendEmailAPIGatewayDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn: SendEmailAPIGatewaySendEmailPost
+    Properties:
+      RestApiId: !Ref SendEmailAPIGateway
+      Description: Escola de software - API Gateway - Send Email
+      StageName: Prod
+
+  #########  Permissions #########
+  PutSendEmailResourceBasedPolicy:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Sub "arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:SendEmailContactFn"
+      Principal: apigateway.amazonaws.com
+      SourceAccount: !Sub "${AWS::AccountId}"
+      SourceArn:
+        Fn::Join:
+          [
+            "",
+            [
+              "arn:",
+              !Ref AWS::Partition,
+              ":execute-api:",
+              !Ref AWS::Region,
+              ":",
+              !Ref AWS::AccountId,
+              ":",
+              !Ref SendEmailAPIGateway,
+              "/",
+              !Ref Environment,
+              !Sub "/POST/SendEmails",
+            ],
+          ]
+
+ 
