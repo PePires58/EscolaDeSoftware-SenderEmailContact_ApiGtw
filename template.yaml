@@ -41,14 +41,14 @@ Resources:
             ResponseTemplates:
               application/json: ''
             PassthroughBehavior: WHEN_NO_MATCH
-        MethodResponses:
-          - StatusCode: 200
-            ResponseModels:
-              application/json: 'Empty'
-        ResponseParameters:
-          method.response.header.Access-Control-Allow-Headers: false
-          method.response.header.Access-Control-Allow-Methods: false
-          method.response.header.Access-Control-Allow-Origin: false
+      MethodResponses:
+        - StatusCode: 200
+          ResponseModels:
+            application/json: 'Empty'
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: false
+            method.response.header.Access-Control-Allow-Methods: false
+            method.response.header.Access-Control-Allow-Origin: false
 
   SendEmailAPIGatewaySendEmailPost:
     Type: AWS::ApiGateway::Method
