@@ -27,30 +27,19 @@ Resources:
     Properties:
       AuthorizationType: NONE
       ApiKeyRequired: False
-      ResourceId: !Ref SendEmailAPIGatewaySendEmailResource
-      RestApiId: !Ref SendEmailAPIGateway
       HttpMethod: OPTIONS
       Integration:
-        Type: MOCK
+        IntegrationHttpMethod: POST
         IntegrationResponses:
           - StatusCode: 200
-            ResponseParameters:
-              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
-              method.response.header.Access-Control-Allow-Methods: "'POST,OPTIONS'"
-              method.response.header.Access-Control-Allow-Origin: "'https://dak1pni58hzx7.cloudfront.net'"
-            ResponseTemplates:
-              application/json: ''
-        PassthroughBehavior: WHEN_NO_MATCH
-        RequestTemplates:
-          application/json: '{"statusCode": 200}'
+        TimeoutInMillis: 1000
+        Type: AWS_PROXY
+        Uri: !Sub "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${AWS::Region}:${AWS::AccountId}:function:SendEmailContactCorsFn/invocations"
       MethodResponses:
         - StatusCode: 200
-          ResponseModels:
-            application/json: 'Empty'
-          ResponseParameters:
-            method.response.header.Access-Control-Allow-Headers: false
-            method.response.header.Access-Control-Allow-Methods: false
-            method.response.header.Access-Control-Allow-Origin: false
+      OperationName: OPTIONS /SendEmails
+      ResourceId: !Ref SendEmailAPIGatewaySendEmailResource
+      RestApiId: !Ref SendEmailAPIGateway
 
   SendEmailAPIGatewaySendEmailPost:
     Type: AWS::ApiGateway::Method
